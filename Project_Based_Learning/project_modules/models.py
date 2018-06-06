@@ -1,6 +1,8 @@
 from django.db import models
 from teacher.models import Teacher
 from student.models import Student
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 # Create your models here.
 class Project(models.Model):
@@ -10,7 +12,8 @@ class Project(models.Model):
 	description = models.TextField(blank=True, null=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	last_updated = models.DateTimeField(auto_now=True)
-	teacher_id = models.ForeignKey(Teacher, related_name='projects', on_delete=models.DO_NOTHING, null=True)
+	teacher = models.ForeignKey(Teacher, related_name='projects', on_delete=models.DO_NOTHING, null=True)
+	students = models.ManyToManyField(Student,related_name='projects')
 
 	def __str__(self):
 		return self.project_name + ':' + str(self.number_of_modules) + ' ' + str(self.number_of_users) + ' ' + self.description + ' ' 
@@ -18,10 +21,14 @@ class Project(models.Model):
 
 class Module(models.Model):
 	module_name = models.CharField(max_length=100, unique=True)
-	dependancies = models.TextField(blank=True, null=True)
+	dependencies = models.ManyToManyField('self', symmetrical=False)
 	description = models.TextField(blank=True, null=True)
-	teacher_id = models.ForeignKey(Teacher, related_name='modules', on_delete=models.DO_NOTHING, null=True)
-	student_id = models.ForeignKey(Student, related_name='modules', on_delete=models.DO_NOTHING, null=True)
+	project = models.ForeignKey(Project, related_name='modules', on_delete=models.DO_NOTHING, null=True)
+	students = models.ManyToManyField(Student, related_name='modules')
+	color = models.IntegerField(
+        default=0,
+        validators=[MaxValueValidator(2), MinValueValidator(0)]
+     ) # 0: untouched, 1: in-progress, 2: completed
 
 	def __str__(self):
-		return self.module_name + ' :' + self.description + ' ' + self.teacher_id.user.username + ' ' + self.student_id.user.username
+		return self.module_name
