@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'student' ,
     'teacher' ,
     'project_modules' ,
+    'accounts'
 
 ]
 

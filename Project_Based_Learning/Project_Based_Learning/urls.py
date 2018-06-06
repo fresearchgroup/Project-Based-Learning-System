@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.conf.urls import url
 from .import views
 urlpatterns = [
-	
+	url(r'^signup/$',accounts_views.signup,name='signup'),
     url('admin/', admin.site.urls),
     url(r'',views.home,name='home'),
 ]
