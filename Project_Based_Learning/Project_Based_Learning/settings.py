@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'teacher' ,
     'project_modules' ,
     'accounts' ,
-    'widget_tweaks'
-
+    'widget_tweaks' ,
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

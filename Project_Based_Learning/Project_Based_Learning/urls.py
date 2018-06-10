@@ -15,11 +15,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls import url
+from django.urls import include,path
 from .import views
 from accounts import views as accounts_views
+from rest_framework.urlpatterns import format_suffix_patterns
+from teacher import views as teacher_views
+from project_modules import views as project_modules_views
+from student import views as student_views
 
 urlpatterns = [
+    path('students/<int:id>/', student_views.StudentInfo.as_view()),
+    url(r'^students/', student_views.StudentList.as_view()),
+    path('modules/<int:id>/', project_modules_views.ModuleInfo.as_view()),
+    url(r'^modules/', project_modules_views.ModuleList.as_view()),
+    path('projects/<int:id>/', project_modules_views.ProjectInfo.as_view()),
+    url(r'^projects/', project_modules_views.ProjectList.as_view()),
+    path('teachers/<int:id>/', teacher_views.TeacherInfo.as_view()),
+    url(r'^teachers/', teacher_views.TeacherList.as_view()),
 	url(r'^signup/$',accounts_views.signup,name='signup'),
     url('admin/', admin.site.urls),
     url(r'',views.home,name='home'),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
