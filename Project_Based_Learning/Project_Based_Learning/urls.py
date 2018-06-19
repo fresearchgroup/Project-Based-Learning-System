@@ -24,6 +24,9 @@ from project_modules import views as project_modules_views
 from student import views as student_views
 
 urlpatterns = [
+    url(r'^api-auth/userinfo/$', accounts_views.UserInfo.as_view(), name='account-info'),
+    url(r'^api-auth/signin/$', accounts_views.UserLogin.as_view(), name='account-login'),
+    url(r'^api-auth/signup/$', accounts_views.UserCreate.as_view(), name='account-create'),
     path('students/<int:id>/', student_views.StudentInfo.as_view()),
     url(r'^students/', student_views.StudentList.as_view()),
     path('modules/<int:id>/', project_modules_views.ModuleInfo.as_view()),
@@ -32,7 +35,6 @@ urlpatterns = [
     url(r'^projects/', project_modules_views.ProjectList.as_view()),
     path('teachers/<int:id>/', teacher_views.TeacherInfo.as_view()),
     url(r'^teachers/', teacher_views.TeacherList.as_view()),
-	url(r'^signup/$',accounts_views.signup,name='signup'),
     url('admin/', admin.site.urls),
     url(r'',views.home,name='home'),
 ]

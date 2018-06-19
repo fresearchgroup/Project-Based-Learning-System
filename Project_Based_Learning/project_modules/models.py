@@ -8,7 +8,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 class Project(models.Model):
 	project_name = models.CharField(max_length=100, unique=True)
 	number_of_modules = models.IntegerField()
-	number_of_users = models.IntegerField()
+	#number_of_users = models.IntegerField()
 	description = models.TextField(blank=True, null=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	last_updated = models.DateTimeField(auto_now=True)
@@ -16,8 +16,8 @@ class Project(models.Model):
 	students = models.ManyToManyField(Student,related_name='projects')
 
 	def __str__(self):
-		return self.project_name + ':' + str(self.number_of_modules) + ' ' + str(self.number_of_users) + ' ' + self.description + ' ' 
-		+ str(self.created_at) + ' ' + str(self.last_updated) + ' ' + self.teacher_id
+		return self.project_name + ':' + str(self.number_of_modules) + ' ' + ' ' + self.description + ' ' 
+		+ str(self.created_at) + ' ' + str(self.last_updated)
 
 class Module(models.Model):
 	module_name = models.CharField(max_length=100, unique=True)
