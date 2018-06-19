@@ -36,7 +36,6 @@ urlpatterns = [
     path('teachers/<int:id>/', teacher_views.TeacherInfo.as_view()),
     url(r'^teachers/', teacher_views.TeacherList.as_view()),
     url('admin/', admin.site.urls),
-    url(r'',views.home,name='home'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
