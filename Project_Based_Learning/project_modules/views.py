@@ -13,6 +13,12 @@ from .models import Project
 from .models import Module
 from teacher.models import Teacher
 from student.models import Student
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+from rest_framework.parsers import JSONParser
+
 
 # Create your views here.
 
@@ -31,6 +37,10 @@ class ProjectList(APIView):
 			if user.is_active:
 				teacher_user = Teacher.objects.filter(user=user)
 				if len(teacher_user):
+					# json_data = json.loads(str(request.body, encoding='utf-8'))
+					# serializer = ProjectSerializer(data=json_data)
+					# if serializer.is_valid():
+					# 	project = serializer.save()
 					data = request.data
 					project = Project(project_name=data['project_name'], description=data['description'], number_of_modules=data['number_of_modules']);
 					project.save()
@@ -40,11 +50,23 @@ class ProjectList(APIView):
 						module.save()
 						project.modules.add(module)
 
+					for i in modules:
+						module = Module.objects.filter(module_name=i['module_name'], description=i['description'])
+						module1 = module[0]
+						module1.dependencies.clear()
+						for j in i['dependencies']:
+							inner_module = Module.objects.filter(module_name=j['module_name'], description=j['description'])
+							module1.dependencies.add(inner_module[0])
+
+						print(module1.dependencies.all())
+						module1.save()
+
 					project.save()
 					teacher_user[0].projects.add(project)
 					teacher_user[0].save()
 					js = json.dumps({"status" : "true", "msg" : "Project Successfully Added"})
 					return Response(js, status=status.HTTP_201_CREATED)
+					
 				else:
 					js = json.dumps({"status" : "false", "msg" : "Not a valid Student"})
 					return Response(js, status=status.HTTP_400_BAD_REQUEST)
