@@ -7,7 +7,16 @@
 
 ### Requirements
   - Python 3.6
-  - Django 2.0.5
+  - Django==2.0.5
+  - django-cors-headers==2.2.0
+  - django-filter==1.1.0
+  - django-widget-tweaks==1.4.2
+  - djangorestframework==3.8.2
+  - djangorestframework-jwt==1.11.0
+  - Markdown==2.6.11
+  - PyJWT==1.6.4
+  - pytz==2018.4
+
 
 ### Installation
 
@@ -40,10 +49,22 @@
 
 4. Django Installation
     ```sh
-    $ pip install django
+    $ pip install django==2.0.5
     ```
 
-5. Cloning the repository
+5. Other packages Installation
+    ```sh
+    $ pip install django-cors-headers==2.2.0
+    $ pip install django-filter==1.1.0
+    $ pip install django-widget-tweaks==1.4.2
+    $ pip install djangorestframework==3.8.2
+    $ pip install djangorestframework-jwt==1.11.0
+    $ pip install Markdown==2.6.11
+    $ pip install PyJWT==1.6.4
+    $ pip install pytz==2018.4
+    ```
+
+6. Cloning the repository
     ```sh
     $ git clone https://github.com/barry-1928/Project-Based-Learning-System.git
     ```

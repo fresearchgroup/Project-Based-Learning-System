@@ -24,14 +24,15 @@ from project_modules import views as project_modules_views
 from student import views as student_views
 
 urlpatterns = [
+    path('project_graph/<slug:project_name>/', project_modules_views.GetGraph.as_view()),
     url(r'^api-auth/userinfo/$', accounts_views.UserInfo.as_view(), name='account-info'),
     url(r'^api-auth/signin/$', accounts_views.UserLogin.as_view(), name='account-login'),
     url(r'^api-auth/signup/$', accounts_views.UserCreate.as_view(), name='account-create'),
     path('students/<int:id>/', student_views.StudentInfo.as_view()),
     url(r'^students/', student_views.StudentList.as_view()),
-    path('modules/<int:id>/', project_modules_views.ModuleInfo.as_view()),
-    url(r'^modules/', project_modules_views.ModuleList.as_view()),
-    path('projects/<int:id>/', project_modules_views.ProjectInfo.as_view()),
+    #path('modules/<int:id>/', project_modules_views.ModuleInfo.as_view()),
+    #url(r'^modules/', project_modules_views.ModuleList.as_view()),
+    path('project/<slug:project_name>/', project_modules_views.ProjectInfo.as_view()),
     url(r'^projects/', project_modules_views.ProjectList.as_view()),
     path('teachers/<int:id>/', teacher_views.TeacherInfo.as_view()),
     url(r'^teachers/', teacher_views.TeacherList.as_view()),

@@ -18,6 +18,7 @@ try:
 except ImportError:
     from io import StringIO
 from rest_framework.parsers import JSONParser
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -65,7 +66,7 @@ class ProjectList(APIView):
 					teacher_user[0].projects.add(project)
 					teacher_user[0].save()
 					js = json.dumps({"status" : "true", "msg" : "Project Successfully Added"})
-					return Response(js, status=status.HTTP_201_CREATED)
+					return Response(js, status=status.HTTP_201_CREATED) 
 					
 				else:
 					js = json.dumps({"status" : "false", "msg" : "Not a valid Student"})
@@ -82,28 +83,95 @@ class ProjectList(APIView):
 		print(request.data)
 		
 
-class ProjectInfo(generics.ListAPIView):
-	serializer_class = ProjectSerializer
-	lookup_url_kwarg = "id"
+class ProjectInfo(APIView):
 
-	def get_queryset(self):
-		id = self.kwargs.get(self.lookup_url_kwarg)
-		return Project.objects.filter(id=id)
+	def get(self, request, project_name):
+		user = request.user
+		if user is not None:
+			if user.is_active:
+				teacher_user = Teacher.objects.filter(user=user)
+				if len(teacher_user):
+					# json_data = json.loads(str(request.body, encoding='utf-8'))
+					# serializer = ProjectSerializer(data=json_data)
+					# if serializer.is_valid():
+					# 	project = serializer.save()
+					path = request.get_full_path()
+					
+					path = path.split('/')
+					print(path)
+					project = Project.objects.get(project_name=path[2],teacher=teacher_user[0])
+					if(project):
+						proj = project
+						#send project info
+						serializer = ProjectSerializer(proj)
+						return Response(serializer.data, status=status.HTTP_201_CREATED) #change to 200 success
+					else:
+						js = json.dumps({"status" : "false", "msg" : "Not a valid Project"})
+						return Response(js, status=status.HTTP_400_BAD_REQUEST)
+					
+				else:
+					js = json.dumps({"status" : "false", "msg" : "Not a valid Teacher"})
+					return Response(js, status=status.HTTP_400_BAD_REQUEST)
+			else:
+				js = json.dumps({"status" : "false", "reason" : "You need to activate your account. Please check your email"})
+				return Response(js, status=status.HTTP_400_BAD_REQUEST)
+		else:
+				js = json.dumps({"status" : "false", "reason" : "Please login and try again"})
+				return Response(js, status=status.HTTP_400_BAD_REQUEST)
 
-class ModuleList(APIView):
-
-	def get(self, request):
-		modules = Module.objects.all()
-		serializer = ModuleSerializer(modules, many=True)
-		return Response(serializer.data)
-
-	def post(self):
+	def post(self, request, format='json'):
 		pass
 
-class ModuleInfo(generics.ListAPIView):
-	serializer_class = ModuleSerializer
-	lookup_url_kwarg = "id"
+def make_graph(project):
+	nodes = []
+	edges = []
+	for module in project.modules.all():
+		_node = {'id': module.id, 'label': module.module_name, 'title': module.module_name}
+		_node['color'] = '#00e676'
+		nodes += [_node]
 
-	def get_queryset(self):
-		id = self.kwargs.get(self.lookup_url_kwarg)
-		return Module.objects.filter(id=id)
+	for module in project.modules.all():
+		target_id = module.id
+		for j in module.dependencies.all():
+			source_id = j.id
+			edges += [{'from': source_id, 'to': target_id, 'label': '', 'arrows': 'to'}]
+
+	return nodes,edges
+
+
+
+class GetGraph(APIView):
+
+	def get(self, request, project_name):
+		user = request.user
+		if user is not None:
+			if user.is_active:
+				teacher_user = Teacher.objects.filter(user=user)
+				if len(teacher_user):
+					path = request.get_full_path()
+					path = path.split('/')
+					print(path)
+					project = Project.objects.get(project_name=path[2],teacher=teacher_user[0])
+					if(project):
+						proj = project
+						#send project info
+						nodes,edges = make_graph(project)
+
+						# serializer = ProjectSerializer(proj)
+						return JsonResponse({'project_name': project.project_name, 'nodes': json.dumps(nodes), 'edges': json.dumps(edges)})
+					else:
+						js = json.dumps({"status" : "false", "msg" : "Not a valid Project"})
+						return Response(js, status=status.HTTP_400_BAD_REQUEST)
+					
+				else:
+					js = json.dumps({"status" : "false", "msg" : "Not a valid Teacher"})
+					return Response(js, status=status.HTTP_400_BAD_REQUEST)
+			else:
+				js = json.dumps({"status" : "false", "reason" : "You need to activate your account. Please check your email"})
+				return Response(js, status=status.HTTP_400_BAD_REQUEST)
+		else:
+				js = json.dumps({"status" : "false", "reason" : "Please login and try again"})
+				return Response(js, status=status.HTTP_400_BAD_REQUEST)
+
+	def post(self, request, format='json'):
+		pass
