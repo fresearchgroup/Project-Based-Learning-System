@@ -24,6 +24,7 @@ from project_modules import views as project_modules_views
 from student import views as student_views
 
 urlpatterns = [
+    path('submit_code/', project_modules_views.CodeSubmit.as_view()),
     path('project_graph/<slug:project_name>/', project_modules_views.GetGraph.as_view()),
     url(r'^api-auth/userinfo/$', accounts_views.UserInfo.as_view(), name='account-info'),
     url(r'^api-auth/signin/$', accounts_views.UserLogin.as_view(), name='account-login'),

@@ -194,7 +194,12 @@ def make_graph(project):
 	edges = []
 	for module in project.modules.all():
 		_node = {'id': module.id, 'label': module.module_name, 'title': module.module_name}
-		_node['color'] = '#00e676'
+		if module.color == 0:
+			_node['color'] = '#00e676'
+		elif module.color == 1:
+			_node['color'] = '#0000FF'
+		else:
+			_node['color'] = '#BDB76B'
 		nodes += [_node]
 
 	for module in project.modules.all():
@@ -238,3 +243,35 @@ class GetGraph(APIView):
 
 	def post(self, request, format='json'):
 		pass
+
+
+class CodeSubmit(APIView):
+
+	def get(self, request):
+		pass
+
+	def post(self, request, format='json'):
+		user = request.user
+		if user is not None:
+			if user.is_active:
+				student_user = Student.objects.filter(user=user)
+				if len(student_user):
+					#submit code here
+					data = request.data
+					module_list = Module.objects.filter(module_name=data['module_name'])
+					module = module_list[0]
+					module.color = 1 #code submitted, not verified
+					module.code = data['code']
+					module.save()
+					js = json.dumps({"status" : "true", "msg" : "Code Successfully Added"})
+					return Response(js, status=status.HTTP_201_CREATED) 
+					
+				else:
+					js = json.dumps({"status" : "false", "msg" : "Not a valid Student"})
+					return Response(js, status=status.HTTP_400_BAD_REQUEST)
+			else:
+				js = json.dumps({"status" : "false", "reason" : "You need to activate your account. Please check your email"})
+				return Response(js, status=status.HTTP_400_BAD_REQUEST)
+		else:
+			js = json.dumps({"status" : "false", "reason" : "Please login and try again"})
+			return Response(js, status=status.HTTP_400_BAD_REQUEST)
