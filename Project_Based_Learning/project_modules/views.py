@@ -7,6 +7,7 @@ from .models import Project
 from .models import Module
 from rest_framework import status
 from .serializers import ProjectSerializer
+from django.contrib.auth.models import User
 from .serializers import ModuleSerializer
 import json
 from .models import Project
@@ -28,9 +29,23 @@ from django.http import JsonResponse
 class ProjectList(APIView):
 
 	def get(self, request):
-		projects = Project.objects.all()
-		serializer = ProjectSerializer(projects, many=True)
-		return Response(serializer.data)
+		user = request.user
+		if user is not None:
+			if user.is_active:
+				teacher_user = Teacher.objects.filter(user=user)
+				if len(teacher_user):
+					projects = teacher_user[0].projects.all()
+					serializer = ProjectSerializer(projects, many=True)
+					return Response(serializer.data)
+				else:
+					js = json.dumps({"status" : "false", "msg" : "Not a valid Teacher"})
+					return Response(js, status=status.HTTP_400_BAD_REQUEST)
+			else:
+				js = json.dumps({"status" : "false", "reason" : "You need to activate your account. Please check your email"})
+				return Response(js, status=status.HTTP_400_BAD_REQUEST)
+		else:
+			js = json.dumps({"status" : "false", "reason" : "Please login and try again"})
+			return Response(js, status=status.HTTP_400_BAD_REQUEST)
 
 	def post(self, request, format='json'):
 		user = request.user
@@ -43,9 +58,30 @@ class ProjectList(APIView):
 					# if serializer.is_valid():
 					# 	project = serializer.save()
 					data = request.data
+					
+					modules = data['modules']
+					for i in modules:
+						for j in i['students']:
+							print(j)
+							user = User.objects.filter(username=j)
+							if not len(user):
+								print("HI")
+								js = json.dumps({"status" : "false", "msg" : "Enter correct username"})
+								return Response(js, status=status.HTTP_400_BAD_REQUEST)
+							else:
+								student = Student.objects.get(user=user[0])
+								if student:
+									continue
+								else:
+									js = json.dumps({"status" : "false", "msg" : "Enter correct username"})
+									return Response(js, status=status.HTTP_400_BAD_REQUEST)
+					project = Project.objects.filter(project_name=data['project_name'])
+					if len(project):
+						print("HI")
+						js = json.dumps({"status" : "false", "msg" : "Enter new project name"})
+						return Response(js, status=status.HTTP_400_BAD_REQUEST)
 					project = Project(project_name=data['project_name'], description=data['description'], number_of_modules=data['number_of_modules']);
 					project.save()
-					modules = data['modules']
 					for i in modules:
 						module = Module(module_name=i['module_name'], description=i['description'])
 						module.save()
@@ -59,7 +95,13 @@ class ProjectList(APIView):
 							inner_module = Module.objects.filter(module_name=j['module_name'], description=j['description'])
 							module1.dependencies.add(inner_module[0])
 
+						for j in i['students']:
+							user = User.objects.get(username=j)
+							student = Student.objects.get(user=user)
+							module1.students.add(student)
+
 						print(module1.dependencies.all())
+						print(module1.students.all())
 						module1.save()
 
 					project.save()
@@ -69,14 +111,14 @@ class ProjectList(APIView):
 					return Response(js, status=status.HTTP_201_CREATED) 
 					
 				else:
-					js = json.dumps({"status" : "false", "msg" : "Not a valid Student"})
+					js = json.dumps({"status" : "false", "msg" : "Not a valid Teacher"})
 					return Response(js, status=status.HTTP_400_BAD_REQUEST)
 			else:
 				js = json.dumps({"status" : "false", "reason" : "You need to activate your account. Please check your email"})
 				return Response(js, status=status.HTTP_400_BAD_REQUEST)
 		else:
-				js = json.dumps({"status" : "false", "reason" : "Please login and try again"})
-				return Response(js, status=status.HTTP_400_BAD_REQUEST)
+			js = json.dumps({"status" : "false", "reason" : "Please login and try again"})
+			return Response(js, status=status.HTTP_400_BAD_REQUEST)
 		
 
 		print(user.username)

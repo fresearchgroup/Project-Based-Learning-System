@@ -15,7 +15,7 @@ class ProjectTestCase(TestCase):
 		Project.objects.create(teacher=teacher,project_name="C++",description="C++ Learning",number_of_modules=2)
 		
 	def test_project(self):
-		"""Animals that can speak are correctly identified"""
+		
 		user = User.objects.get(username="xyzwu1928",password="xyzwu1928")
 		teacher = Teacher.objects.get(user=user)
 		project = Project.objects.get(project_name="C++")
@@ -64,7 +64,7 @@ class ModulesTestCase(TestCase):
 
 		
 	def test_module(self):
-		"""Animals that can speak are correctly identified"""
+		
 		user = User.objects.get(username="xyzwu1928",password="xyzwu1928")
 		teacher = Teacher.objects.get(user=user)
 		project = Project.objects.get(project_name="C++")

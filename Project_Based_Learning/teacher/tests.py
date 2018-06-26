@@ -10,7 +10,7 @@ class TeacherTestCase(TestCase):
 		Teacher.objects.create(user=user, contact_no="0234567891")
 		
 	def test_teacher(self):
-		"""Animals that can speak are correctly identified"""
+		
 		user = User.objects.get(username="xyzwu1928",password="xyzwu1928")
 		teacher = Teacher.objects.get(user=user)
 		self.assertEqual(user is not None, True)
