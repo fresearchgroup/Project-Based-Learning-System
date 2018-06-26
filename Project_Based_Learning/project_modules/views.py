@@ -24,9 +24,34 @@ from django.http import JsonResponse
 
 # Create your views here.
 
+class StudentProjectList(APIView):
+
+	def get(self, request):
+		user = request.user
+		if user is not None:
+			if user.is_active:
+				student_user = Student.objects.filter(user=user)
+				if len(student_user):
+					modules = student_user[0].modules.all()
+					serializer = ModuleSerializer(modules, many=True)
+					return Response(serializer.data)
+				else:
+					js = json.dumps({"status" : "false", "msg" : "Not a valid Student"})
+					return Response(js, status=status.HTTP_400_BAD_REQUEST)
+			else:
+				js = json.dumps({"status" : "false", "reason" : "You need to activate your account. Please check your email"})
+				return Response(js, status=status.HTTP_400_BAD_REQUEST)
+		else:
+			js = json.dumps({"status" : "false", "reason" : "Please login and try again"})
+			return Response(js, status=status.HTTP_400_BAD_REQUEST)
+
+	def post(self, request, format='json'):
+		pass
+		
+
 #List all teachers or create a new teacher
 #teachers
-class ProjectList(APIView):
+class TeacherProjectList(APIView):
 
 	def get(self, request):
 		user = request.user
@@ -188,26 +213,22 @@ class GetGraph(APIView):
 		user = request.user
 		if user is not None:
 			if user.is_active:
-				teacher_user = Teacher.objects.filter(user=user)
-				if len(teacher_user):
-					path = request.get_full_path()
-					path = path.split('/')
-					print(path)
-					project = Project.objects.get(project_name=path[2],teacher=teacher_user[0])
-					if(project):
-						proj = project
-						#send project info
-						nodes,edges = make_graph(project)
-
-						# serializer = ProjectSerializer(proj)
-						return JsonResponse({'project_name': project.project_name, 'nodes': json.dumps(nodes), 'edges': json.dumps(edges)})
-					else:
-						js = json.dumps({"status" : "false", "msg" : "Not a valid Project"})
-						return Response(js, status=status.HTTP_400_BAD_REQUEST)
-					
+				
+				path = request.get_full_path()
+				path = path.split('/')
+				print(path)
+				project = Project.objects.get(project_name=path[2])
+				if(project):
+					proj = project
+					#send project info
+					nodes,edges = make_graph(project)
+					# serializer = ProjectSerializer(proj)
+					return JsonResponse({'project_name': project.project_name, 'nodes': json.dumps(nodes), 'edges': json.dumps(edges)})
 				else:
-					js = json.dumps({"status" : "false", "msg" : "Not a valid Teacher"})
+					js = json.dumps({"status" : "false", "msg" : "Not a valid Project"})
 					return Response(js, status=status.HTTP_400_BAD_REQUEST)
+					
+				
 			else:
 				js = json.dumps({"status" : "false", "reason" : "You need to activate your account. Please check your email"})
 				return Response(js, status=status.HTTP_400_BAD_REQUEST)
