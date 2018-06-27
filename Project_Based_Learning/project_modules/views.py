@@ -24,7 +24,7 @@ from django.http import JsonResponse
 
 # Create your views here.
 
-class StudentProjectList(APIView):
+class StudentProjectList(APIView): #returns the list of modules that the student is part of
 
 	def get(self, request):
 		user = request.user
@@ -49,11 +49,10 @@ class StudentProjectList(APIView):
 		pass
 		
 
-#List all teachers or create a new teacher
-#teachers
-class TeacherProjectList(APIView):
 
-	def get(self, request):
+class TeacherProjects(APIView):
+
+	def get(self, request): #returns the list of projects belonging to the teacher
 		user = request.user
 		if user is not None:
 			if user.is_active:
@@ -61,7 +60,7 @@ class TeacherProjectList(APIView):
 				if len(teacher_user):
 					projects = teacher_user[0].projects.all()
 					serializer = ProjectSerializer(projects, many=True)
-					return Response(serializer.data)
+					return Response(serializer.data) #returns json to the client
 				else:
 					js = json.dumps({"status" : "false", "msg" : "Not a valid Teacher"})
 					return Response(js, status=status.HTTP_400_BAD_REQUEST)
@@ -72,25 +71,21 @@ class TeacherProjectList(APIView):
 			js = json.dumps({"status" : "false", "reason" : "Please login and try again"})
 			return Response(js, status=status.HTTP_400_BAD_REQUEST)
 
-	def post(self, request, format='json'):
+	def post(self, request, format='json'): #Creates the project based on information sent from Teacher's side
 		user = request.user
 		if user is not None:
 			if user.is_active:
 				teacher_user = Teacher.objects.filter(user=user)
 				if len(teacher_user):
-					# json_data = json.loads(str(request.body, encoding='utf-8'))
-					# serializer = ProjectSerializer(data=json_data)
-					# if serializer.is_valid():
-					# 	project = serializer.save()
 					data = request.data
 					
 					modules = data['modules']
 					for i in modules:
 						for j in i['students']:
-							print(j)
+							#print(j)
 							user = User.objects.filter(username=j)
 							if not len(user):
-								print("HI")
+								#print("HI")
 								js = json.dumps({"status" : "false", "msg" : "Enter correct username"})
 								return Response(js, status=status.HTTP_400_BAD_REQUEST)
 							else:
@@ -102,7 +97,7 @@ class TeacherProjectList(APIView):
 									return Response(js, status=status.HTTP_400_BAD_REQUEST)
 					project = Project.objects.filter(project_name=data['project_name'])
 					if len(project):
-						print("HI")
+						#print("HI")
 						js = json.dumps({"status" : "false", "msg" : "Enter new project name"})
 						return Response(js, status=status.HTTP_400_BAD_REQUEST)
 					project = Project(project_name=data['project_name'], description=data['description'], number_of_modules=data['number_of_modules']);
@@ -125,8 +120,8 @@ class TeacherProjectList(APIView):
 							student = Student.objects.get(user=user)
 							module1.students.add(student)
 
-						print(module1.dependencies.all())
-						print(module1.students.all())
+						#print(module1.dependencies.all())
+						#print(module1.students.all())
 						module1.save()
 
 					project.save()
@@ -146,11 +141,11 @@ class TeacherProjectList(APIView):
 			return Response(js, status=status.HTTP_400_BAD_REQUEST)
 		
 
-		print(user.username)
-		print(request.data)
+		#print(user.username)
+		#print(request.data)
 		
 
-class ProjectInfo(APIView):
+class ProjectInfo(APIView): #returns the information related to the project based on project_name sent from Client Side
 
 	def get(self, request, project_name):
 		user = request.user
@@ -189,17 +184,17 @@ class ProjectInfo(APIView):
 	def post(self, request, format='json'):
 		pass
 
-def make_graph(project):
+def make_graph(project): #returns the nodes and edges belonging to dependencies
 	nodes = []
 	edges = []
 	for module in project.modules.all():
 		_node = {'id': module.id, 'label': module.module_name, 'title': module.module_name}
 		if module.color == 0:
-			_node['color'] = '#00e676'
+			_node['color'] = '#FF0000'
 		elif module.color == 1:
 			_node['color'] = '#0000FF'
 		else:
-			_node['color'] = '#BDB76B'
+			_node['color'] = '#00e676'
 		nodes += [_node]
 
 	for module in project.modules.all():
@@ -212,7 +207,7 @@ def make_graph(project):
 
 
 
-class GetGraph(APIView):
+class GetGraph(APIView): #returns the nodes and edges related to the dependencies of modules that belong to the project
 
 	def get(self, request, project_name):
 		user = request.user
@@ -221,7 +216,7 @@ class GetGraph(APIView):
 				
 				path = request.get_full_path()
 				path = path.split('/')
-				print(path)
+				#print(path)
 				project = Project.objects.get(project_name=path[2])
 				if(project):
 					proj = project
@@ -245,7 +240,7 @@ class GetGraph(APIView):
 		pass
 
 
-class CodeSubmit(APIView):
+class CodeSubmit(APIView): #submits the code belonging to corresponding module sent from Client side and changes the color field of module to 1
 
 	def get(self, request):
 		pass

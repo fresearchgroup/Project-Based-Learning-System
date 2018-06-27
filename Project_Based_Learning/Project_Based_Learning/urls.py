@@ -35,7 +35,7 @@ urlpatterns = [
     #url(r'^modules/', project_modules_views.ModuleList.as_view()),
     path('project/<slug:project_name>/', project_modules_views.ProjectInfo.as_view()),
     url(r'^student_projects/', project_modules_views.StudentProjectList.as_view()),
-    url(r'^teacher_projects/', project_modules_views.TeacherProjectList.as_view()),
+    url(r'^teacher_projects/', project_modules_views.TeacherProjects.as_view()),
     path('teachers/<int:id>/', teacher_views.TeacherInfo.as_view()),
     url(r'^teachers/', teacher_views.TeacherList.as_view()),
     url('admin/', admin.site.urls),
