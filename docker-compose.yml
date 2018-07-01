@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: python Poject_Based_Learning/manage.py runserver 127.0.0.1:8000
+    volumes:
+      - .:/PBL-server
+    ports:
+      - "8000:8000"
