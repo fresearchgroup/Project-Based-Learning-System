@@ -100,35 +100,44 @@ class TeacherProjects(APIView):
 						#print("HI")
 						js = json.dumps({"status" : "false", "msg" : "Enter new project name"})
 						return Response(js, status=status.HTTP_400_BAD_REQUEST)
-					project = Project(project_name=data['project_name'], description=data['description'], number_of_modules=data['number_of_modules']);
-					project.save()
-					for i in modules:
-						module = Module(module_name=i['module_name'], description=i['description'])
-						module.save()
-						project.modules.add(module)
-
+					decider = True
 					for i in modules:
 						module = Module.objects.filter(module_name=i['module_name'], description=i['description'])
-						module1 = module[0]
-						module1.dependencies.clear()
-						for j in i['dependencies']:
-							inner_module = Module.objects.filter(module_name=j['module_name'], description=j['description'])
-							module1.dependencies.add(inner_module[0])
+						decider = decider & (len(module) == 0)
 
-						for j in i['students']:
-							user = User.objects.get(username=j)
-							student = Student.objects.get(user=user)
-							module1.students.add(student)
+					if decider:
+						project = Project(project_name=data['project_name'], description=data['description'], number_of_modules=data['number_of_modules']);
+						project.save()
+						for i in modules:
+							module = Module(module_name=i['module_name'], description=i['description'])
+							module.save()
+							project.modules.add(module)
 
-						#print(module1.dependencies.all())
-						#print(module1.students.all())
-						module1.save()
+						for i in modules:
+							module = Module.objects.filter(module_name=i['module_name'], description=i['description'])
+							module1 = module[0]
+							module1.dependencies.clear()
+							for j in i['dependencies']:
+								inner_module = Module.objects.filter(module_name=j['module_name'], description=j['description'])
+								module1.dependencies.add(inner_module[0])
 
-					project.save()
-					teacher_user[0].projects.add(project)
-					teacher_user[0].save()
-					js = json.dumps({"status" : "true", "msg" : "Project Successfully Added"})
-					return Response(js, status=status.HTTP_201_CREATED) 
+							for j in i['students']:
+								user = User.objects.get(username=j)
+								student = Student.objects.get(user=user)
+								module1.students.add(student)
+
+							#print(module1.dependencies.all())
+							#print(module1.students.all())
+							module1.save()
+
+						project.save()
+						teacher_user[0].projects.add(project)
+						teacher_user[0].save()
+						js = json.dumps({"status" : "true", "msg" : "Project Successfully Added"})
+						return Response(js, status=status.HTTP_201_CREATED)
+					else:
+						js = json.dumps({"status" : "false", "msg" : "Project Could not be added!"})
+						return Response(js, status=status.HTTP_400_BAD_REQUEST)
 					
 				else:
 					js = json.dumps({"status" : "false", "msg" : "Not a valid Teacher"})
