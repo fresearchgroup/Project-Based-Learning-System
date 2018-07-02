@@ -47,12 +47,12 @@
     $ source venv/bin/activate
     ```
 
-4. Django Installation
+6. Django Installation
     ```sh
     $ pip install django==2.0.5
     ```
 
-5. Other packages Installation
+7. Other packages Installation
     ```sh
     $ pip install django-cors-headers==2.2.0
     $ pip install django-filter==1.1.0
@@ -64,7 +64,22 @@
     $ pip install pytz==2018.4
     ```
 
-6. Cloning the repository
+8. Cloning the repository
     ```sh
     $ git clone https://github.com/barry-1928/Project-Based-Learning-System.git
+    ```
+
+9. Steps for Docker
+
+  - Install Docker and Docker-Compose from -
+    ```sh
+    Docker - https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository
+    Docker Compose -- https://docs.docker.com/compose/install/
+    ```
+
+  - Run Docker
+    ```sh
+    $ sudo docker-compose run web python3 Project_Based_Learning/manage.py migrate
+    $ sudo docker-compose build
+    $ sudo docker-compose up
     ```
