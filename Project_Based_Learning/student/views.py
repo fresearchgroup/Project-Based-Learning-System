@@ -9,9 +9,8 @@ from .serializers import StudentSerializer
 
 # Create your views here.
 
-#List all teachers or create a new teacher
-#teachers/
-class StudentList(APIView):
+
+class StudentList(APIView): #returns the list of students signed in
 
 	def get(self, request):
 		students = Student.objects.all()

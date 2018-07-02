@@ -16,19 +16,16 @@ from student.models import Student
 from teacher.models import Teacher
 import json
 
-class UserCreate(APIView):
-	""" 
-	Creates the user. 
+class UserCreate(APIView): #Creates a user object based on the data sent from Client side and returns the token corresponding to the user
+	"""
+	Creates the user.
 	"""
 	permission_classes = (AllowAny,)
 	def post(self, request, format='json'):
-		#user = User(username=request.data['username'], password=request.data['password'], email=request.data['email'])
 		serializer = UserSerializer(data=request.data)
-		#print(serializer.validated_data)
-		print(request.data)
 		if serializer.is_valid():
-			print("Valid")
-			user = serializer.save()	
+			#print("Valid")
+			user = serializer.save()
 			if user:
 				if request.data["isStudent"] == 1:
 					new_student = Student(user=user, contact_no=request.data["contact_no"])
@@ -47,7 +44,7 @@ class UserCreate(APIView):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserLogin(APIView):
+class UserLogin(APIView): #Logins the user based on username,password and isStudent field sent from Client Side and returns the corresponding token
 	""" 
 	Logs in the user. 
 	"""

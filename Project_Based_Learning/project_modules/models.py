@@ -22,6 +22,7 @@ class Project(models.Model):
 class Module(models.Model):
 	module_name = models.CharField(max_length=100, unique=True)
 	dependencies = models.ManyToManyField('self', symmetrical=False)
+	code = models.TextField(blank=True, null=True)
 	description = models.TextField(blank=True, null=True)
 	project = models.ForeignKey(Project, related_name='modules', on_delete=models.DO_NOTHING, null=True)
 	students = models.ManyToManyField(Student, related_name='modules')
