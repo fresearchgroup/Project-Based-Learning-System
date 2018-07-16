@@ -66,7 +66,7 @@
 
 8. Cloning the repository
     ```sh
-    $ git clone https://github.com/barry-1928/Project-Based-Learning-System.git
+    $ git clone https://github.com/fresearchgroup/Project-Based-Learning-System.git
     ```
 
 9. Steps for Docker
